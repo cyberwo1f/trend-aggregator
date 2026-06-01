@@ -47,6 +47,11 @@ Electron の 3 プロセス構成。**レンダラは DB・AI に直接触れず
 - **同一カテゴリ内 URL は `UNIQUE(category_id, url)` + `INSERT OR IGNORE` で重複排除**（保持済みアイテムを尊重、新規のみ加算）。
 - これらは `electron/db/repository.test.ts` で固定。挙動を変える時はテストを先に直すこと。仕様詳細は `doc/data-model.md`。
 
+## UI 実装（デザインシステム）
+
+- **レンダラ（`src/`）の UI を実装・変更するときは、必ず `DESIGN.md`（デザインシステム）を参照し、それに沿ってスタイルを適用する。** カラー / タイポグラフィ / スペーシング / 角丸・影（elevation）/ コンポーネント（ナビ・ボタン・カード・入力・タグ・タブ）/ レスポンシブ の規約が定義されている。
+- 色・余白・角丸などをアドホックにハードコードせず、`DESIGN.md` の定義（およびその `Do's and Don'ts`）に従う。新規 UI も既存 UI の改修も同様。
+
 ## 非自明な技術的決定
 
 - **DB は `better-sqlite3` ではなく `node:sqlite`**: Electron 42（同梱 Node 24.15 / 新 V8）で better-sqlite3 のネイティブビルドが失敗するため。`node:sqlite` は実験的機能（起動時に警告が出る）。
@@ -57,4 +62,4 @@ Electron の 3 プロセス構成。**レンダラは DB・AI に直接触れず
 
 ## ドキュメント
 
-`README.md`(入口) / `doc/architecture.md`(構成・選定根拠) / `doc/data-model.md`(スキーマ・クリア挙動) / `doc/ai-auth.md`(認証・コスト) / `doc/development.md`(開発・TDD・テスト方針)。
+`README.md`(入口) / `doc/architecture.md`(構成・選定根拠) / `doc/data-model.md`(スキーマ・クリア挙動) / `doc/ai-auth.md`(認証・コスト) / `doc/development.md`(開発・TDD・テスト方針) / `DESIGN.md`(UI デザインシステム)。

@@ -52,7 +52,7 @@ npm run test:watch # テスト（ウォッチ）
 | レイヤ | 方法 | 例 |
 | --- | --- | --- |
 | リポジトリ層（`electron/db`） | Vitest + `node:sqlite` を `:memory:` で。`initDatabase(':memory:')` を使い、`vi.mock('electron')` で `app` をモック | 再収集クリア保持 / 重複排除 / フィルタ（`repository.test.ts`） |
-| Agent 層（`electron/agent`） | Claude / ネットワークをモックし、入出力の整形・エラー処理を検証 | 収集結果の正規化、要約の構造化（実装時に追加） |
+| Agent 層（`electron/agent`） | SDK シーム（`client.ts`）を `vi.mock` でモックし、純粋ロジックを検証 | プロンプト構築（`collector.test.ts`）、モデル JSON 出力の解析・正規化（`summarizer.test.ts`） |
 | IPC / 結合 | repository + agent + ipc を結線して主要フローを検証 | `collect:run` が「クリア→収集→要約→保存」を行う |
 | React コンポーネント | （必要に応じて）jsdom + Testing Library。現状は未導入 | フィルタ切替・トグルの表示 |
 

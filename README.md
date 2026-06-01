@@ -32,7 +32,7 @@ npm run dev        # 開発起動
 npm test           # テスト（Vitest）
 ```
 
-> 現在の雛形は、カテゴリの作成・選択、フィルタ（すべて/未読/お気に入り/後で見る）、再収集（スタブ収集）、各アイテムの既読・お気に入り・後で見るトグルが動作します。収集・要約は次ステップで Claude Agent SDK に差し替えます。
+> カテゴリの作成・選択、フィルタ（すべて/未読/お気に入り/後で見る）、再収集、各アイテムの既読・お気に入り・後で見るトグルが動作します。収集・要約は Claude Agent SDK で実装済みですが、**実 API 呼び出しは `ANTHROPIC_API_KEY` を設定して実機検証が必要**です。
 
 開発の詳細・スクリプト・**TDD ワークフロー**は [doc/development.md](./doc/development.md)。
 
@@ -58,7 +58,8 @@ npm test           # テスト（Vitest）
 - [x] DB の決定 → **`node:sqlite`** を採用（better-sqlite3 は Electron 42 でビルド不可）
 - [x] 雛形の初期化（electron-vite + React + node:sqlite + IPC + データモデル）— typecheck / build / DB 挙動を検証済み
 - [x] リポジトリ層のユニットテスト（Vitest）— 再収集クリア保持 / 重複排除 / フィルタを回帰テスト化
-- [ ] **収集・要約の実装**：`electron/agent/` を Claude Agent SDK（WebSearch / WebFetch）で本実装
+- [x] **収集・要約の実装**：`electron/agent/` を Claude Agent SDK 化（プロンプト構築・JSON 解析は TDD でテスト済み、SDK 呼び出しは `client.ts` に隔離）
+- [ ] 収集・要約の実機検証：`ANTHROPIC_API_KEY` を設定し `npm run dev` で「再収集」を実行（実 API 呼び出しは未検証）
 - [ ] 🔔 **【2026-06-15 以降】認証の両対応化**：API キー + サブスクの Agent SDK クレジット（`CLAUDE_CODE_OAUTH_TOKEN` / `claude setup-token`）へ拡張
 - [ ] API キーの安全な保管（Electron `safeStorage` / OS キーチェーン）
 - [ ] 収集スケジューリング（手動更新のみ / 定期自動収集）

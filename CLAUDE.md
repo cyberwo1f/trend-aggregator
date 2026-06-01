@@ -38,8 +38,8 @@ Electron の 3 プロセス構成。**レンダラは DB・AI に直接触れず
 
 - **IPC コントラクトは `shared/types.ts` の `AppApi` が単一の真実**。ここを起点に preload(`electron/preload.ts`) と ipc ハンドラ(`electron/ipc.ts`) が対応する。API を増減する時は `AppApi` → `preload` → `ipc` → repository/agent の順で揃える。ドメイン型（Category / Item など）もここに集約しメイン・レンダラで共有。
 - **データ層 `electron/db/repository.ts`**: `node:sqlite` の `DatabaseSync`。`initDatabase(filePath?)` は省略時 `app.getPath('userData')`、テストは `':memory:'` を渡す。`closeDatabase()` でリセット。スキーマは `schema.sql` を `?raw` import して exec。`categoriesRepo` / `itemsRepo` / `runsRepo` を公開。
-- **AI 層 `electron/agent/`**: `collector.ts`(収集) と `summarizer.ts`(要約) は**現状スタブ**。次ステップで Claude Agent SDK（`WebSearch`/`WebFetch`、`ANTHROPIC_API_KEY` 認証）に差し替える。
-- **収集フロー（`ipc.ts` の `collect:run`）**: `clearTransient` →（収集）→（要約）→ `insertCollected` を 1 トランザクション的に実行し、`collection_runs` に記録する。
+- **AI 層 `electron/agent/`**: Claude Agent SDK で実装済み。`client.ts`(SDK 呼び出しを隔離するシーム/ESM を動的 import・テストでモック) / `collector.ts`(`buildCollectionPrompt` でプロンプト構築 + 1 回のエージェント実行で収集と要約を兼ねる) / `summarizer.ts`(`parseSummarized`: モデルの JSON 出力を頑健に解析・正規化) / `types.ts`(共有型)。認証は `ANTHROPIC_API_KEY`、WebSearch/WebFetch を `permissionMode:'bypassPermissions'` で非対話実行。**純粋ロジック（プロンプト/解析）と SDK 呼び出しを分離し、後者をモックしてテストする**のがこの層の設計。
+- **収集フロー（`ipc.ts` の `collect:run`）**: `clearTransient` → `collectForCategory`（検索+要約を 1 ループ） → `insertCollected` を実行し、`collection_runs` に記録する。
 
 ### 死守すべき不変条件（要件の核・テスト済み）
 
@@ -50,6 +50,7 @@ Electron の 3 プロセス構成。**レンダラは DB・AI に直接触れず
 ## 非自明な技術的決定
 
 - **DB は `better-sqlite3` ではなく `node:sqlite`**: Electron 42（同梱 Node 24.15 / 新 V8）で better-sqlite3 のネイティブビルドが失敗するため。`node:sqlite` は実験的機能（起動時に警告が出る）。
+- **Agent SDK は ESM-only**: メインプロセスは CommonJS のため `client.ts` で動的 `import('@anthropic-ai/claude-agent-sdk')` を使う（externalizeDepsPlugin で外部化）。
 - **Vite は 7 系に固定**: electron-vite 5 のピア依存が vite `^7` 上限のため（最新 8 は不可）。plugin-react は 5 系。
 - **Node は `20.19+` / `22.12+`（24 で確認）** が必須（Vite 7 / electron-vite 5 の要件）。
 - **AI 認証は API キーのみ（現状）**: Claude サブスクの OAuth を SDK で使うのは規約違反。2026-06-15 以降に Agent SDK クレジットで両対応化する予定。詳細・コスト・鍵保管は `doc/ai-auth.md`。

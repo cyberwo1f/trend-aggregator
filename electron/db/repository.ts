@@ -3,7 +3,7 @@ import { DatabaseSync } from 'node:sqlite'
 import { join } from 'node:path'
 import schemaSql from './schema.sql?raw'
 import type { Category, CategoryInput, Item, ItemFilter } from '@shared/types'
-import type { Summarized } from '../agent/summarizer'
+import type { Summarized } from '../agent/types'
 
 // SQLite には Node 標準の node:sqlite(DatabaseSync) を使う。
 // ネイティブビルド不要で Electron の ABI 変更にも影響されない（実験的機能）。

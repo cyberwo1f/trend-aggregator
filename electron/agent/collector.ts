@@ -1,30 +1,42 @@
 import type { Category } from '@shared/types'
+import { runAgentQuery, type AgentQueryInput } from './client'
+import { parseSummarized } from './summarizer'
+import type { Summarized } from './types'
 
-/** 収集された記事候補（要約前） */
-export interface CollectedItem {
-  title: string
-  url: string
-  source: string | null
-  excerpt: string | null
-  publishedAt: string | null
+/** 要約品質とコストのバランスで選ぶ既定モデル（必要に応じて変更可） */
+export const DEFAULT_MODEL = 'claude-sonnet-4-6'
+
+/** カテゴリの目的に沿った収集プロンプトを組み立てる（純粋関数・テスト対象） */
+export function buildCollectionPrompt(category: Category): AgentQueryInput {
+  const purpose = category.purpose?.trim() || '(指定なし)'
+  const keywords = category.keywords?.trim()
+
+  const prompt =
+    `カテゴリ「${category.name}」の最新トレンドを収集してください。\n` +
+    `調査目的: ${purpose}` +
+    (keywords ? `\n重視するキーワード: ${keywords}` : '')
+
+  const systemPrompt =
+    'あなたはトレンド収集アシスタントです。与えられたカテゴリの目的に沿って次を行います:\n' +
+    '1. WebSearch で関連する最新の記事を探す\n' +
+    '2. WebFetch で必要に応じて本文を取得する\n' +
+    '3. 各記事を目的の観点で日本語で簡潔に要約し、重要度を 1〜10 で付ける\n' +
+    '4. 最終出力は JSON 配列のみ。各要素は ' +
+    '{"title","url","source","summary","importance"} とする。JSON 以外の文章は出力しない。'
+
+  return {
+    prompt,
+    systemPrompt,
+    allowedTools: ['WebSearch', 'WebFetch'],
+    model: DEFAULT_MODEL,
+  }
 }
 
 /**
- * カテゴリの目的に沿って Web を検索し、トレンド記事の候補を収集する。
- *
- * TODO(次ステップ): Claude Agent SDK (@anthropic-ai/claude-agent-sdk) の
- *   WebSearch / WebFetch ツールで実装する。認証は ANTHROPIC_API_KEY を使用予定。
- *   現状はスタブで、動作確認用のモックデータを返す。
+ * カテゴリの目的に沿って Web を検索し、要約・整理済みのアイテムを返す。
+ * 実際の SDK 呼び出しは {@link runAgentQuery} に隔離している（テストではモック）。
  */
-export async function collectForCategory(category: Category): Promise<CollectedItem[]> {
-  const stamp = new Date().toISOString()
-  return [
-    {
-      title: `[サンプル] ${category.name} の最新トレンド`,
-      url: `https://example.com/${encodeURIComponent(category.name)}/${stamp}`,
-      source: 'example.com',
-      excerpt: `これはスタブの収集結果です。目的: ${category.purpose ?? '(未設定)'}`,
-      publishedAt: stamp,
-    },
-  ]
+export async function collectForCategory(category: Category): Promise<Summarized[]> {
+  const text = await runAgentQuery(buildCollectionPrompt(category))
+  return parseSummarized(text)
 }

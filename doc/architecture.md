@@ -87,9 +87,13 @@ trend-aggregator/
 │  ├─ main.ts                 # ウィンドウ生成・DB 初期化・IPC 登録
 │  ├─ preload.ts              # contextBridge で window.api を公開
 │  ├─ ipc.ts                  # ipcMain ハンドラ（repository / agent を仲介）
-│  ├─ agent/                  # 収集・要約（現状スタブ → Claude Agent SDK で実装予定）
-│  │  ├─ collector.ts         # WebSearch / WebFetch で収集
-│  │  └─ summarizer.ts        # カテゴリ目的に沿った要約・整理
+│  ├─ agent/                  # 収集・要約（Claude Agent SDK）
+│  │  ├─ client.ts            # SDK 呼び出しを隔離するシーム（ESM を動的 import）
+│  │  ├─ collector.ts         # プロンプト構築 + エージェント実行（収集+要約を 1 ループ）
+│  │  ├─ collector.test.ts    # プロンプト構築・解析オーケストレーションのテスト
+│  │  ├─ summarizer.ts        # parseSummarized: モデル JSON 出力の頑健な解析・正規化
+│  │  ├─ summarizer.test.ts   # 解析ロジックのテスト
+│  │  └─ types.ts             # CollectedItem / Summarized
 │  └─ db/                     # node:sqlite アクセス層
 │     ├─ schema.sql           # スキーマ（?raw で読み込み）
 │     ├─ repository.ts        # categories / items / runs のリポジトリ

@@ -13,7 +13,9 @@
     "test": "vitest run",
     "test:watch": "vitest"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.159"
+  },
   "devDependencies": {
     "@types/node": "^24.0.0",
     "@types/react": "^19.2.0",

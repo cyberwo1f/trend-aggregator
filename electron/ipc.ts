@@ -1,7 +1,6 @@
 import { ipcMain } from 'electron'
 import { categoriesRepo, itemsRepo, runsRepo } from './db/repository'
 import { collectForCategory } from './agent/collector'
-import { summarize } from './agent/summarizer'
 import type { CategoryInput, ItemFilter } from '@shared/types'
 
 /** レンダラからの IPC 呼び出しを登録する */
@@ -35,11 +34,9 @@ export function registerIpcHandlers(): void {
     try {
       // 1. 一覧クリア（お気に入り・後で見るは保持）
       itemsRepo.clearTransient(categoryId)
-      // 2. Web 検索で収集
-      const collected = await collectForCategory(category)
-      // 3. 目的に沿って要約・整理
-      const summarized = await summarize(collected, category.purpose)
-      // 4. 保存
+      // 2. Web 検索で収集し、目的に沿って要約・整理（1 回のエージェントループ）
+      const summarized = await collectForCategory(category)
+      // 3. 保存
       const added = itemsRepo.insertCollected(categoryId, runId, summarized)
       runsRepo.finish(runId, 'done')
       return { runId, added }

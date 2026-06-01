@@ -12,7 +12,7 @@ import {
   itemsRepo,
   runsRepo,
 } from './repository'
-import type { Summarized } from '../agent/summarizer'
+import type { Summarized } from '../agent/types'
 
 /** テスト用に Summarized を組み立てる（url/title 以外はデフォルト） */
 function makeItem(

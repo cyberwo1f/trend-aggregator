@@ -1,5 +1,5 @@
-import { contextBridge, ipcRenderer } from 'electron'
-import type { AppApi, CategoryInput, ItemFilter } from '@shared/types'
+import { contextBridge, ipcRenderer, type IpcRendererEvent } from 'electron'
+import type { AppApi, CategoryInput, CollectProgress, ItemFilter } from '@shared/types'
 
 // レンダラ(WebView)へ公開する API。型は AppApi に準拠する。
 const api: AppApi = {
@@ -18,6 +18,13 @@ const api: AppApi = {
     ipcRenderer.invoke('items:setReadLater', itemId, value),
 
   collect: (categoryId: number) => ipcRenderer.invoke('collect:run', categoryId),
+  getCollectionModel: () => ipcRenderer.invoke('settings:getCollectionModel'),
+  setCollectionModel: (model: string) => ipcRenderer.invoke('settings:setCollectionModel', model),
+  onCollectProgress: (callback: (progress: CollectProgress) => void) => {
+    const listener = (_e: IpcRendererEvent, progress: CollectProgress) => callback(progress)
+    ipcRenderer.on('collect:progress', listener)
+    return () => ipcRenderer.removeListener('collect:progress', listener)
+  },
 }
 
 contextBridge.exposeInMainWorld('api', api)

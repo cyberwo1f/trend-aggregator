@@ -23,27 +23,44 @@ export function Sidebar({ categories, selectedId, onSelect, onAdd }: Props) {
 
   return (
     <aside className="sidebar">
-      <h1>Trend Aggregator</h1>
-      <h2>カテゴリ</h2>
-      <ul className="category-list">
-        {categories.map((c) => (
-          <li key={c.id}>
-            <button className={c.id === selectedId ? 'active' : ''} onClick={() => onSelect(c.id)}>
-              {c.name}
-            </button>
-          </li>
-        ))}
-        {categories.length === 0 && <li className="empty">まだカテゴリがありません</li>}
-      </ul>
+      <div>
+        <p className="sidebar-label t-caption-up">カテゴリ</p>
+        <ul className="category-nav">
+          {categories.map((c) => (
+            <li key={c.id}>
+              <button
+                type="button"
+                className={`category-nav-item ${c.id === selectedId ? 'is-active' : ''}`}
+                onClick={() => onSelect(c.id)}
+              >
+                <span className="dot" />
+                <span>{c.name}</span>
+              </button>
+            </li>
+          ))}
+          {categories.length === 0 && (
+            <li className="sidebar-empty">まだカテゴリがありません</li>
+          )}
+        </ul>
+      </div>
 
       <form className="add-form" onSubmit={submit}>
-        <input value={name} onChange={(e) => setName(e.target.value)} placeholder="カテゴリ名" />
+        <p className="sidebar-label t-caption-up">カテゴリを追加</p>
         <input
+          className="text-input"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="カテゴリ名"
+        />
+        <input
+          className="text-input"
           value={purpose}
           onChange={(e) => setPurpose(e.target.value)}
           placeholder="調査目的（任意）"
         />
-        <button type="submit">＋ 追加</button>
+        <button type="submit" className="btn btn-primary btn-block">
+          ＋ 追加
+        </button>
       </form>
     </aside>
   )

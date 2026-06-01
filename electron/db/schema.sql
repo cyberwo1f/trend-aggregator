@@ -38,3 +38,9 @@ CREATE TABLE IF NOT EXISTS collection_runs (
   finished_at  TEXT,
   status       TEXT NOT NULL   -- running / done / error
 );
+
+-- アプリ設定（key-value）。収集モデル等のユーザー設定を保持する
+CREATE TABLE IF NOT EXISTS settings (
+  key   TEXT PRIMARY KEY,
+  value TEXT NOT NULL
+);

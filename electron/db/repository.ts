@@ -203,6 +203,24 @@ export const itemsRepo = {
   },
 }
 
+// ---- アプリ設定（key-value） ----
+export const settingsRepo = {
+  get(key: string): string | undefined {
+    const row = getDb().prepare('SELECT value FROM settings WHERE key = ?').get(key) as unknown as
+      | { value: string }
+      | undefined
+    return row?.value
+  },
+  set(key: string, value: string): void {
+    getDb()
+      .prepare(
+        `INSERT INTO settings (key, value) VALUES (?, ?)
+         ON CONFLICT(key) DO UPDATE SET value = excluded.value`
+      )
+      .run(key, value)
+  },
+}
+
 // ---- 収集実行ログ ----
 export const runsRepo = {
   start(categoryId: number): number {

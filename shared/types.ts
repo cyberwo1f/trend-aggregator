@@ -60,6 +60,25 @@ export interface CollectResult {
   added: number
 }
 
+/** 収集に使える Claude モデルの選択肢（UI のセレクタで提示する） */
+export const COLLECTION_MODELS = [
+  { id: 'claude-haiku-4-5-20251001', label: 'Haiku（最速・最安）' },
+  { id: 'claude-sonnet-4-6', label: 'Sonnet（標準）' },
+  { id: 'claude-opus-4-8', label: 'Opus（高品質・高コスト）' },
+] as const
+
+export type CollectionModelId = (typeof COLLECTION_MODELS)[number]['id']
+
+/** 収集の進捗イベント（メイン→レンダラへ push される） */
+export interface CollectProgress {
+  /** どのカテゴリの収集か */
+  categoryId: number
+  /** 進捗の段階 */
+  phase: 'start' | 'search' | 'fetch' | 'summarize' | 'done'
+  /** 表示用メッセージ（日本語） */
+  message: string
+}
+
 /**
  * レンダラ(WebView)に公開する API。
  * preload の contextBridge 経由で `window.api` として参照する。
@@ -80,4 +99,13 @@ export interface AppApi {
   // --- 収集 ---
   /** 再収集。一覧の一時アイテムをクリア（お気に入り・後で見るは保持）して新規収集する */
   collect(categoryId: number): Promise<CollectResult>
+  /** 収集に使うモデル（全カテゴリ共通の設定）を取得する */
+  getCollectionModel(): Promise<string>
+  /** 収集に使うモデルを設定する */
+  setCollectionModel(model: string): Promise<void>
+  /**
+   * 収集の進捗イベントを購読する。返り値は購読解除関数。
+   * メインプロセスが `webContents.send` で push する。
+   */
+  onCollectProgress(callback: (progress: CollectProgress) => void): () => void
 }

@@ -11,6 +11,7 @@ import {
   initDatabase,
   itemsRepo,
   runsRepo,
+  settingsRepo,
 } from './repository'
 import type { Summarized } from '../agent/types'
 
@@ -132,5 +133,17 @@ describe('runsRepo', () => {
     const runId = runsRepo.start(cat.id)
     expect(runId).toBeGreaterThan(0)
     expect(() => runsRepo.finish(runId, 'done')).not.toThrow()
+  })
+})
+
+describe('settingsRepo', () => {
+  it('未設定なら undefined、set 後は get で取得でき、再 set で上書きする', () => {
+    expect(settingsRepo.get('collection_model')).toBeUndefined()
+
+    settingsRepo.set('collection_model', 'claude-sonnet-4-6')
+    expect(settingsRepo.get('collection_model')).toBe('claude-sonnet-4-6')
+
+    settingsRepo.set('collection_model', 'claude-haiku-4-5-20251001')
+    expect(settingsRepo.get('collection_model')).toBe('claude-haiku-4-5-20251001')
   })
 })

@@ -4,6 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trend Aggregator</title>
+    <!--
+      DESIGN.md 指定のフォント。Copernicus / StyreneB は非公開のため代替を使う:
+      ・display(serif) = Cormorant Garamond（最も近い OSS 近似・weight 500/600）
+      ・body(sans)     = Inter
+      ・code(mono)     = JetBrains Mono
+      オフライン時はフォールバックスタック（styles.css の --font-*）が効く。
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Inter:wght@400;500;600&family=JetBrains+Mono&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body>
     <div id="root"></div>

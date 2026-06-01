@@ -30,6 +30,20 @@ describe('buildCollectionPrompt', () => {
     expect(input.prompt).toContain('tokio')
     expect(input.allowedTools).toEqual(['WebSearch', 'WebFetch'])
     expect(input.systemPrompt).toMatch(/JSON/)
+    // エージェントループの暴走・長時間化を防ぐため上限ターン数と全体タイムアウトを指定する
+    expect(input.maxTurns).toBeGreaterThan(0)
+    expect(input.timeoutMs).toBeGreaterThan(0)
+    // 作業量を抑える指示（検索回数・記事件数・直近スコープ）を含む
+    expect(input.systemPrompt).toMatch(/最大.*件/)
+    expect(input.systemPrompt).toMatch(/直近/)
+    expect(input.systemPrompt).toMatch(/2\s*回/)
+  })
+
+  it('モデル指定を反映する（未指定は既定モデル）', () => {
+    expect(buildCollectionPrompt(category()).model).toBe('claude-sonnet-4-6')
+    expect(buildCollectionPrompt(category(), 'claude-haiku-4-5-20251001').model).toBe(
+      'claude-haiku-4-5-20251001'
+    )
   })
 
   it('目的が未設定でも成立する', () => {

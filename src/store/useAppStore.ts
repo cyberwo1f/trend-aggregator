@@ -8,6 +8,9 @@ export function useAppStore() {
   const [items, setItems] = useState<Item[]>([])
   const [filter, setFilter] = useState<ItemFilter>('all')
   const [busy, setBusy] = useState(false)
+  const [collectionModel, setCollectionModelState] = useState<string>('claude-sonnet-4-6')
+  /** 収集中の進捗メッセージ（busy 中のみ表示） */
+  const [progress, setProgress] = useState<string>('')
 
   const refreshCategories = useCallback(async () => {
     const list = await window.api.listCategories()
@@ -25,11 +28,17 @@ export function useAppStore() {
 
   useEffect(() => {
     void refreshCategories()
+    void window.api.getCollectionModel().then(setCollectionModelState)
   }, [refreshCategories])
 
   useEffect(() => {
     void refreshItems()
   }, [refreshItems])
+
+  // 収集の進捗イベントを購読（busy 中に最新メッセージを表示する）
+  useEffect(() => {
+    return window.api.onCollectProgress((p) => setProgress(p.message))
+  }, [])
 
   const addCategory = useCallback(
     async (input: CategoryInput) => {
@@ -40,14 +49,21 @@ export function useAppStore() {
     [refreshCategories]
   )
 
+  const setCollectionModel = useCallback(async (model: string) => {
+    await window.api.setCollectionModel(model)
+    setCollectionModelState(model)
+  }, [])
+
   const collect = useCallback(async () => {
     if (selectedId == null) return
     setBusy(true)
+    setProgress('収集を開始しています…')
     try {
       await window.api.collect(selectedId)
       await refreshItems()
     } finally {
       setBusy(false)
+      setProgress('')
     }
   }, [selectedId, refreshItems])
 
@@ -70,6 +86,9 @@ export function useAppStore() {
     filter,
     setFilter,
     busy,
+    progress,
+    collectionModel,
+    setCollectionModel,
     addCategory,
     collect,
     toggle,

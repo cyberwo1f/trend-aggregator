@@ -1,0 +1,35 @@
+name: CI
+
+# push / PR のたびに型チェックとテストを実行する。
+# TDD 方針（コミット前に typecheck と test を green に保つ）を CI でも担保する。
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # node:sqlite は実験的機能（22.5+ で利用可）。動作確認済みの 24 と LTS の 22 で検証する。
+        node-version: ['22.x', '24.x']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npm run typecheck
+
+      - name: Test
+        run: npm test

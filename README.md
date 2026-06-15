@@ -1,8 +1,10 @@
 # Trend Aggregator
 
+[![CI](https://github.com/cyberwo1f/trend-aggregator/actions/workflows/ci.yml/badge.svg)](https://github.com/cyberwo1f/trend-aggregator/actions/workflows/ci.yml)
+
 ユーザー定義のカテゴリごとに Web 上のトレンドを収集し、**AI（Claude）が記事を要約・整理**して一覧表示するローカル単一ユーザー向けデスクトップアプリです。お気に入り・後で見る・既読/未読の管理に対応し、再収集してもストックした記事は失われません。
 
-> ステータス: 🚧 開発初期（雛形 + データモデル + リポジトリ層テストまで完了。収集・要約は実装予定）
+> ステータス: 🚧 開発中（雛形・データモデル・リポジトリ層テスト・**収集/要約（Claude Agent SDK）の実装と実 API での実機検証**まで完了。認証の両対応化・API キーの安全保管・UX 改善が今後の予定）
 
 ---
 
